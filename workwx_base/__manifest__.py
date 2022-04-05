@@ -6,7 +6,7 @@
     'category': 'WorkWX',
     'author': 'grey27',
     "license": "LGPL-3",
-    "images": ["static/description/banner.jpg"],
+    "images": ["static/description/banner.png"],
     'depends': ['base', 'web', 'auth_oauth'],
     'data': [
         'data/workwx_oauth_provider_data.xml',
