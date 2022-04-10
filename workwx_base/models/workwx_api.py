@@ -11,6 +11,7 @@ token_cache = Cache(ttl=3600)
 
 WORKWX_API_TYPE = {
     'GET_ACCESS_TOKEN': ['/cgi-bin/gettoken', 'GET'],
+    'GET_JSAPI_TICKET': ['/cgi-bin/get_jsapi_ticket?access_token=ACCESS_TOKEN', 'GET'],
     'GET_USER_INFO': ['/cgi-bin/user/getuserinfo?access_token=ACCESS_TOKEN', 'GET'],
     'USER_GET': ['/cgi-bin/user/get?access_token=ACCESS_TOKEN', 'GET'],
 }
@@ -35,17 +36,24 @@ class WorkWXAPI:
 
     def _get_token_with_request(self, token_key):
         # 请求企业微信，获取token
-        params = {
-            'corpid': tools.config.get('workwx_corp_id'),
-            'corpsecret': tools.config.get('workwx_corp_secret'),
-        }
-        result, info = self._http_cal_with_result('GET_ACCESS_TOKEN', params)
-        if not result:
-            return False
+        if token_key == 'access_token':
+            params = {
+                'corpid': tools.config.get('workwx_corp_id'),
+                'corpsecret': tools.config.get('workwx_corp_secret'),
+            }
+            result, info = self._http_cal_with_result('GET_ACCESS_TOKEN', params)
+            if not result:
+                return False
+            return info.get('access_token')
+        elif token_key == 'jsapi_ticket':
+            result, info = self._http_cal_with_result('GET_JSAPI_TICKET')
+            if not result:
+                return False
+            return info.get('ticket')
+        else:
+            raise Exception(f'未知的token类型:{token_key}')
 
-        return info.get('access_token')
-
-    def _http_cal_with_result(self, url_type, params):
+    def _http_cal_with_result(self, url_type, params={}):
         # 记录常规企业微信接口请求
         if url_type not in ['GET_ACCESS_TOKEN']:
             logger.info(f'[workwx_request]url_type:{url_type}, args: {params}')

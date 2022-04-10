@@ -1,4 +1,8 @@
+import hashlib
 import logging
+import random
+import time
+
 import werkzeug
 
 from odoo.addons.web.controllers.main import login_and_redirect
@@ -69,22 +73,56 @@ class WorkWxOAuthLogin(OAuthLogin):
             response.qcontext['error'] = '登录失败：系统中无法找到对应用户，请联系管理员开通企业微信登录权限'
         return response
 
-    """
-    企业微信app内自动登录跳转链接接口
-    因为浏览器会默认截断"#"之后的参数,所以odoo原生页面链接中#需要替换为?
-    例如要打开一个odoo常规页面:/web#action=70&model=res.users&view_type=list&cids=&menu_id=4
-    改造为: /workwx/web?redirect_uri=/web?action=70&model=res.users&view_type=list&cids=&menu_id=4
-    如果需要打开一个自定义页面: /workwx/web?redirect_uri=/customize_route
-    """
     @http.route('/workwx/web', type='http', auth="none")
-    def workwx_web(self, redirect_uri=None, **kw):
+    def workwx_web(self, redirect_uri=None, inner=False, **kw):
+        """
+        企业微信app内自动登录跳转链接接口
+        因为浏览器会默认截断"#"之后的参数,所以odoo原生页面链接中#需要替换为?
+        例如要打开一个odoo常规页面:/web#action=70&model=res.users&view_type=list&cids=&menu_id=4
+        改造为: /workwx/web?redirect_uri=/web?action=70&model=res.users&view_type=list&cids=&menu_id=4
+        如果需要打开一个自定义页面: /workwx/web?redirect_uri=/customize_route
+        :param redirect_uri: 跳转地址
+        :param inner: 是否在企业微信内打开,对移动端无效,移动端只能内部打开 因为企业微信浏览器内核对odoo页面支持不佳,所以默认为启用外部浏览器打开
+        :param kw: 携带参数
+        :return: response
+        """
         if not redirect_uri or request.session.uid or 'wxwork' not in request.httprequest.headers.get('User-Agent'):
             return werkzeug.utils.redirect('/web', 303)
         if redirect_uri.startswith('/web?'):
             redirect_uri = redirect_uri.replace('/web?', '/web#')
+        if kw:
             redirect_uri += ('&' + werkzeug.urls.url_encode(kw))
         url = request.httprequest.url_root + '/workwx/signin?' + werkzeug.urls.url_encode({'redirect_uri': redirect_uri})
         REDIRECT_URI = werkzeug.urls.url_quote(url)
         CORPID = tools.config.get('workwx_corp_id')
         authorize_url = f'https://open.weixin.qq.com/connect/oauth2/authorize?appid={CORPID}&redirect_uri={REDIRECT_URI}&response_type=code&scope=snsapi_base&state=odoo#wechat_redirect'
-        return http.local_redirect(authorize_url)
+        if inner or ('Windows' not in request.httprequest.headers.get('User-Agent') and 'Macintosh' not in request.httprequest.headers.get('User-Agent')):
+            return http.local_redirect(authorize_url)
+        values = self.get_workwx_jssdk_config()
+        values.update({'redirect_uri': authorize_url})
+        response = request.render('workwx_base.workwx_open_default_browser', values)
+        return response
+
+    @staticmethod
+    def get_workwx_jssdk_config():
+        ticket = WorkWXAPI().get_workwx_token('jsapi_ticket')
+        noncestr = ''.join([random.choice('0123456789qwertyuiopasdfghjklzxcvbnm') for _ in range(11)])
+        timestamp = int(time.time())
+        url = request.httprequest.url.split('#')[0]
+        # fixme: odoo使用nginx部署并使用https时httprequest不能获取正确的htpps协议,暂时做强制转换处理
+        if tools.config.get('roxy_mode'):
+            url = url.replace('http://', 'https://')
+        base_url, path = url.split('?')
+        if path:
+            url = base_url + '?' + werkzeug.urls.url_unquote_plus(path)
+        jsapi_ticket = f'jsapi_ticket={ticket}&noncestr={noncestr}&timestamp={timestamp}&url={url}'
+        sha = hashlib.sha1(jsapi_ticket.encode('utf-8'))
+        signature = sha.hexdigest()
+        return {
+            'app_id': tools.config.get('workwx_corp_id'),
+            'timestamp': timestamp,
+            'signature': signature,
+            'noncestr': noncestr,
+            'ticket': ticket,
+            'request_url': url,
+        }

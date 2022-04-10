@@ -10,6 +10,7 @@
     'depends': ['base', 'web', 'auth_oauth'],
     'data': [
         'data/workwx_oauth_provider_data.xml',
+        'views/workwx_views.xml',
     ],
     'external_dependencies': {
         'python': [
