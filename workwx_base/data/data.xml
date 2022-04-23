@@ -8,5 +8,13 @@
             <field name="body">使用企业微信扫码登录</field>
             <field name="enabled" eval="True"/>
         </record>
+
+        <record model="ir.config_parameter" id="use_https" forcecreate="False">
+            <field name="key">workwx_base.use_https</field>
+            <field name="value">False</field>
+        </record>
+
+        <record id="workwx_setting" model="workwx.setting">
+        </record>
     </data>
 </odoo>

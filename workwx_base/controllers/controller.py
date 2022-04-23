@@ -109,8 +109,7 @@ class WorkWxOAuthLogin(OAuthLogin):
         noncestr = ''.join([random.choice('0123456789qwertyuiopasdfghjklzxcvbnm') for _ in range(11)])
         timestamp = int(time.time())
         url = request.httprequest.url.split('#')[0]
-        # fixme: odoo使用nginx部署并使用https时httprequest不能获取正确的htpps协议,暂时做强制转换处理
-        if tools.config.get('roxy_mode'):
+        if url.startswith('http://') and request.env['ir.config_parameter'].sudo().get_param('workwx_base.use_https'):
             url = url.replace('http://', 'https://')
         base_url, path = url.split('?')
         if path:

@@ -9,8 +9,10 @@
     "images": ["static/description/banner.png"],
     'depends': ['base', 'web', 'auth_oauth'],
     'data': [
-        'data/workwx_oauth_provider_data.xml',
+        'security/ir.model.access.csv',
+        'data/data.xml',
         'views/workwx_views.xml',
+        'views/workwx_setting_view.xml',
     ],
     'external_dependencies': {
         'python': [
