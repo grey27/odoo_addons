@@ -7,12 +7,15 @@
     'author': 'grey27',
     "license": "LGPL-3",
     "images": ["static/description/banner.png"],
-    'depends': ['base', 'web', 'auth_oauth'],
+    'depends': ['base', 'web', 'auth_oauth', 'hr'],
     'data': [
         'security/ir.model.access.csv',
         'data/data.xml',
+        'views/assets.xml',
         'views/workwx_views.xml',
-        'views/workwx_setting_view.xml',
+        'views/workwx_hr_views.xml',
+        'views/workwx_setting_views.xml',
+        'wizard/workwx_wizard_views.xml',
     ],
     'external_dependencies': {
         'python': [

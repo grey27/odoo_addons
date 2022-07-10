@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="workwx_sync_employee_wizard_view_form" model="ir.ui.view">
+            <field name="name">workwx.sync.employee.wizard.view.form</field>
+            <field name="model">workwx.sync.employee.wizard</field>
+            <field name="arch" type="xml">
+                <form >
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="department_ids" widget="many2many_tags"/>
+                                <field name="create_user" widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                                <field name="fetch_child" widget="boolean_toggle"/>
+                                <field name="del_nonexistent_employee" widget="boolean_toggle"/>
+                            </group>
+
+                        </group>
+                        <footer>
+                            <button name="sync_workwx_employee" type="object" string="同步" class="oe_highlight"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

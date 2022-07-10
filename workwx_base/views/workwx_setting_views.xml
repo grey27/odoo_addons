@@ -13,45 +13,49 @@
                          groups="base.group_erp_manager">
                         <h2>企业微信设置</h2>
                         <div class="row mt16 o_settings_container" name="workwx_setting_container">
-                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_https_setting">
+                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_login_setting">
                                 <div class="o_setting_left_pane">
-                                    <field name="use_https"/>
+                                    <field name="workwx_base_default_workwx_login"/>
                                 </div>
                                 <div class="o_setting_right_pane">
-                                    <label for="use_https"/>
+                                    <label for="workwx_base_default_workwx_login"/>
+                                    <div class="text-muted">
+                                        开启后登录界面直接跳转扫码登录页,但还可以使用/web/login?login_mode=password进入密码登录页面
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_https_setting">
+                                <div class="o_setting_left_pane">
+                                    <field name="workwx_base_use_https"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="workwx_base_use_https"/>
                                     <div class="text-muted">
                                         当系统使用nginx部署了https时请勾选
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+                        <h2>通讯录管理</h2>
                         <div class="row mt16 o_settings_container" name="workwx_setting_container">
-                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_https_setting">
-                                <div class="o_setting_left_pane">
-                                    <field name="use_https"/>
-                                </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_system">
+                                <div class="o_setting_left_pane"/>
                                 <div class="o_setting_right_pane">
-                                    <label for="use_https"/>
-                                    <div class="text-muted">
-                                        当系统使用nginx部署了https时请勾选
-                                    </div>
+                                    <button type="object" name="action_sync_workwx_department" string="同步企业微信部门"
+                                            icon="fa-address-book" class="oe_highlight"/>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row mt16 o_settings_container" name="workwx_setting_container">
-                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_https_setting">
-                                <div class="o_setting_left_pane">
-                                    <field name="use_https"/>
-                                </div>
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_system">
+                                <div class="o_setting_left_pane"/>
                                 <div class="o_setting_right_pane">
-                                    <label for="use_https"/>
-                                    <div class="text-muted">
-                                        当系统使用nginx部署了https时请勾选
-                                    </div>
+                                    <button type="object" name="action_sync_workwx_employee" string="同步企业微信员工"
+                                            icon="fa-id-badge" class="oe_highlight"/>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
                 </xpath>

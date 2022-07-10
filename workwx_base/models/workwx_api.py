@@ -14,6 +14,8 @@ WORKWX_API_TYPE = {
     'GET_JSAPI_TICKET': ['/cgi-bin/get_jsapi_ticket?access_token=ACCESS_TOKEN', 'GET'],
     'GET_USER_INFO': ['/cgi-bin/user/getuserinfo?access_token=ACCESS_TOKEN', 'GET'],
     'USER_GET': ['/cgi-bin/user/get?access_token=ACCESS_TOKEN', 'GET'],
+    'DEPARTMENT_LIST': ['/cgi-bin/department/list?access_token=ACCESS_TOKEN', 'GET'],
+    'USER_LIST': ['/cgi-bin/user/list?access_token=ACCESS_TOKEN', 'GET'],
 }
 
 
@@ -129,3 +131,12 @@ class WorkWXAPI:
     def user_get(self, param):
         """获取员工详细信息"""
         return self._http_cal_with_result('USER_GET', param)
+
+    def department_list(self, param):
+        """获取部门列表"""
+        return self._http_cal_with_result('DEPARTMENT_LIST', param)
+
+    def user_list(self, param):
+        """获取员工列表"""
+        return self._http_cal_with_result('USER_LIST', param)
+

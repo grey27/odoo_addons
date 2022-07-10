@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_workwx_setting_all,access.workwx.setting.all,model_workwx_setting,,1,1,1,0
+access_create_workwx_user_wizard_all,access.create.workwx.user.wizard.all,model_create_workwx_user_wizard,,1,1,1,1
+access_workwx_sync_employee_wizard_all,access.workwx.sync.employee.wizard.all,model_workwx_sync_employee_wizard,,1,1,1,1

@@ -19,7 +19,7 @@ class WorkWxOAuthLogin(OAuthLogin):
     def list_providers(self):
         providers = super(WorkWxOAuthLogin, self).list_providers()
         for provider in providers:
-            if provider.get('name') == '企业微信':
+            if '企业微信' in provider.get('name'):
                 params = {
                     'appid': tools.config.get('workwx_corp_id'),
                     'agentid': tools.config.get('workwx_agent_id'),
@@ -63,6 +63,10 @@ class WorkWxOAuthLogin(OAuthLogin):
 
     @http.route()
     def web_login(self, *args, **kw):
+        workwx_setting = request.env.ref('workwx_base.workwx_setting').sudo()
+        if request.httprequest.method == 'GET' and not request.session.uid and \
+                workwx_setting.default_workwx_login and kw.get('login_mode') != 'password':
+            return self.workwx_login(*args, **kw)
         response = super(WorkWxOAuthLogin, self).web_login(*args, **kw)
         error = request.params.get('oauth_error')
         if error == 'workwx_1':
@@ -72,6 +76,15 @@ class WorkWxOAuthLogin(OAuthLogin):
         elif error == 'workwx_3':
             response.qcontext['error'] = '登录失败：系统中无法找到对应用户，请联系管理员开通企业微信登录权限'
         return response
+
+    @http.route('/workwx/login', type='http', auth="none")
+    def workwx_login(self, *args, **kw):
+        kw['login_mode'] = 'password'
+        url = '/web/login?%s' % werkzeug.urls.url_encode(kw)
+        for provider in self.list_providers():
+            if '企业微信' in provider.get('name'):
+                url = provider.get('auth_link')
+        return werkzeug.utils.redirect(url, 303)
 
     @http.route('/workwx/web', type='http', auth="none")
     def workwx_web(self, redirect_uri=None, inner=False, **kw):
@@ -86,12 +99,14 @@ class WorkWxOAuthLogin(OAuthLogin):
         :param kw: 携带参数
         :return: response
         """
-        if not redirect_uri or request.session.uid or 'wxwork' not in request.httprequest.headers.get('User-Agent'):
+        if not redirect_uri or 'wxwork' not in request.httprequest.headers.get('User-Agent'):
             return werkzeug.utils.redirect('/web', 303)
         if redirect_uri.startswith('/web?'):
             redirect_uri = redirect_uri.replace('/web?', '/web#')
         if kw:
             redirect_uri += ('&' + werkzeug.urls.url_encode(kw))
+        if request.session.uid:
+            return werkzeug.utils.redirect(f'/web?redirect={redirect_uri}', 303)
         url = request.httprequest.url_root + '/workwx/signin?' + werkzeug.urls.url_encode({'redirect_uri': redirect_uri})
         REDIRECT_URI = werkzeug.urls.url_quote(url)
         CORPID = tools.config.get('workwx_corp_id')
