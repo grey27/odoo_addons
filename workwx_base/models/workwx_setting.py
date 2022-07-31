@@ -38,6 +38,7 @@ class ResConfigSettings(models.TransientModel):
     def action_sync_workwx_employee(self):
         return {
             'type': 'ir.actions.act_window',
+            'name': '同步企业微信员工',
             'res_model': 'workwx.sync.employee.wizard',
             'view_type': 'form',
             'view_mode': 'form',
@@ -47,6 +48,7 @@ class ResConfigSettings(models.TransientModel):
     def action_invite_workwx_employee(self):
         return {
             'type': 'ir.actions.act_window',
+            'name': '邀请企业微信员工',
             'res_model': 'create.workwx.user.wizard',
             'view_type': 'form',
             'view_mode': 'form',

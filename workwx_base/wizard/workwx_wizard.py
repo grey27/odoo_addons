@@ -138,8 +138,8 @@ class SyncEmployeeWizard(models.TransientModel):
         for del_employee_id in del_employee_ids:
             del_employee_id.active = False
             if del_employee_id.user_id:
-                del_employee_id.user_id.partner_id and del_employee_id.user_id.partner_id.action_archive()
                 del_employee_id.user_id.action_archive()
+                del_employee_id.user_id.partner_id and del_employee_id.user_id.partner_id.action_archive()
         return del_employee_ids
 
     def create_sys_user(self, create_user_ids):
