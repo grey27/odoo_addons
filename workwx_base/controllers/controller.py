@@ -38,15 +38,17 @@ class WorkWxOAuthLogin(OAuthLogin):
         if not result:
             return self._workwx_login_error('workwx_2')
         userid = info.get('UserId')
-        # if userid:
-        #     result, user_info = WorkWXAPI().user_get({'userid': userid})
         oauth_user = request.env['res.users'].sudo().search(
             [("oauth_uid", "=", userid), ('oauth_provider_id', '=', provider.id)])
         if not oauth_user:
             return self._workwx_login_error('workwx_3')
+        if oauth_user.employee_id:
+            result, user_info = WorkWXAPI().user_get({'userid': userid})
+            result and oauth_user.employee_id.update_workwx_info(user_info)
         oauth_user.write({'oauth_access_token': code})
         request.env.cr.commit()
-        url = '/web' if not kw.get('redirect_uri') else kw.get('redirect_uri')
+        url = request.httprequest.url_root + (
+            'web' if not kw.get('redirect_uri') else kw.get('redirect_uri').lstrip('/'))
         try:
             resp = login_and_redirect(request.env.cr.dbname, oauth_user.login, code, redirect_url=url)
             logger.info(f'{oauth_user.login}通过企业微信扫码登录成功')
@@ -90,33 +92,41 @@ class WorkWxOAuthLogin(OAuthLogin):
     def workwx_web(self, redirect_uri=None, inner=False, **kw):
         """
         企业微信app内自动登录跳转链接接口
-        因为浏览器会默认截断"#"之后的参数,所以odoo原生页面链接中#需要替换为?
-        例如要打开一个odoo常规页面:/web#action=70&model=res.users&view_type=list&cids=&menu_id=4
-        改造为: /workwx/web?redirect_uri=/web?action=70&model=res.users&view_type=list&cids=&menu_id=4
-        如果需要打开一个自定义页面: /workwx/web?redirect_uri=/customize_route
-        :param redirect_uri: 跳转地址
-        :param inner: 是否在企业微信内打开,对移动端无效,移动端只能内部打开 因为企业微信浏览器内核对odoo页面支持不佳,所以默认为启用外部浏览器打开
+        :param redirect_uri: 跳转地址,需要使用url编码
+        :param inner: 是否在企业微信内打开,对移动端无效,移动端只能内部打开
+        因为企业微信浏览器内核对odoo页面支持不佳,所以默认为启用外部浏览器打开
         :param kw: 携带参数
         :return: response
         """
-        if not redirect_uri or 'wxwork' not in request.httprequest.headers.get('User-Agent'):
-            return werkzeug.utils.redirect('/web', 303)
-        if redirect_uri.startswith('/web?'):
-            redirect_uri = redirect_uri.replace('/web?', '/web#')
-        if kw:
-            redirect_uri += ('&' + werkzeug.urls.url_encode(kw))
-        if request.session.uid:
-            return werkzeug.utils.redirect(f'/web?redirect={redirect_uri}', 303)
-        url = request.httprequest.url_root + '/workwx/signin?' + werkzeug.urls.url_encode({'redirect_uri': redirect_uri})
-        REDIRECT_URI = werkzeug.urls.url_quote(url)
+        redirect = '/web' if not redirect_uri else f'/web?redirect={redirect_uri}'
+        # 这里再次进行编码是为了防止#后参数被企业回调时给忽略
+        url = request.httprequest.url_root + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri)}'
+        login_redirect_url = self.get_login_redirect_url(url)
+        if 'wxwork' not in request.httprequest.headers.get('User-Agent'):
+            return werkzeug.utils.redirect(redirect, 303)
+        if not inner and self.is_pc(request.httprequest.headers.get('User-Agent')):
+            values = self.get_workwx_jssdk_config()
+            values.update({'redirect_uri': login_redirect_url})
+            return request.render('workwx_base.workwx_open_default_browser', values)
+        else:
+            if not request.session.uid:
+                redirect = login_redirect_url
+            return werkzeug.utils.redirect(redirect, 303)
+
+    @staticmethod
+    def get_login_redirect_url(url):
         CORPID = tools.config.get('workwx_corp_id')
-        authorize_url = f'https://open.weixin.qq.com/connect/oauth2/authorize?appid={CORPID}&redirect_uri={REDIRECT_URI}&response_type=code&scope=snsapi_base&state=odoo#wechat_redirect'
-        if inner or ('Windows' not in request.httprequest.headers.get('User-Agent') and 'Macintosh' not in request.httprequest.headers.get('User-Agent')):
-            return http.local_redirect(authorize_url)
-        values = self.get_workwx_jssdk_config()
-        values.update({'redirect_uri': authorize_url})
-        response = request.render('workwx_base.workwx_open_default_browser', values)
-        return response
+        return f'https://open.weixin.qq.com/connect/oauth2/authorize?appid={CORPID}&redirect_uri=' \
+               f'{werkzeug.urls.url_quote_plus(url)}&response_type=code&scope=snsapi_base&state=odoo#wechat_redirect'
+
+    @staticmethod
+    def is_pc(user_agent):
+        """通过user_agent判断访问设备是否为桌面端"""
+        if not user_agent or not isinstance(user_agent, str):
+            return False
+        if 'Windows' in user_agent or 'Macintosh' in user_agent:
+            return True
+        return False
 
     @staticmethod
     def get_workwx_jssdk_config():
@@ -126,9 +136,6 @@ class WorkWxOAuthLogin(OAuthLogin):
         url = request.httprequest.url.split('#')[0]
         if url.startswith('http://') and request.env['ir.config_parameter'].sudo().get_param('workwx_base.use_https'):
             url = url.replace('http://', 'https://')
-        base_url, path = url.split('?')
-        if path:
-            url = base_url + '?' + werkzeug.urls.url_unquote_plus(path)
         jsapi_ticket = f'jsapi_ticket={ticket}&noncestr={noncestr}&timestamp={timestamp}&url={url}'
         sha = hashlib.sha1(jsapi_ticket.encode('utf-8'))
         signature = sha.hexdigest()

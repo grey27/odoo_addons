@@ -21,7 +21,7 @@ class WorkwxHrDepartment(models.Model):
         params = {'id': id} if id else {}
         result, info = WorkWXAPI().department_list(params)
         if not result:
-            raise UserError(f"同步企业微信部门失败:{info}")
+            raise UserError(f"获取企业微信部门失败:{info}")
         add_count = 0
         all_department_id_list = []
         for department_info in info.get('department'):

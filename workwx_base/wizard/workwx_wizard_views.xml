@@ -2,6 +2,34 @@
 <odoo>
     <data>
 
+        <record id="create_workwx_user_wizard_view_form" model="ir.ui.view">
+            <field name="name">create.workwx.user.wizard.view.form</field>
+            <field name="model">create.workwx.user.wizard</field>
+            <field name="arch" type="xml">
+                <form >
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="user_id"/>
+                                <field name="mobile" attrs="{'required':[('email','in', [False, ''])]}"/>
+                                <field name="email" attrs="{'required':[('mobile','in', [False, ''])]}"/>
+                                <field name="gender"/>
+                                <field name="department"/>
+                                <field name="position"/>
+                                <field name="create_user" widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <footer>
+                            <button name="action_invite" type="object" string="邀请员工" class="oe_highlight"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record id="workwx_sync_employee_wizard_view_form" model="ir.ui.view">
             <field name="name">workwx.sync.employee.wizard.view.form</field>
             <field name="model">workwx.sync.employee.wizard</field>
@@ -10,7 +38,7 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="department_ids" widget="many2many_tags"/>
+                                <field name="department_ids" widget="many2many_tags" requires="1"/>
                                 <field name="create_user" widget="boolean_toggle"/>
                             </group>
                             <group>

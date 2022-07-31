@@ -9,6 +9,7 @@ from odoo import tools
 logger = logging.getLogger(__name__)
 token_cache = Cache(ttl=3600)
 
+# 接口详情及更多接口请查看官方文档: https://developer.work.weixin.qq.com/document/path/90664
 WORKWX_API_TYPE = {
     'GET_ACCESS_TOKEN': ['/cgi-bin/gettoken', 'GET'],
     'GET_JSAPI_TICKET': ['/cgi-bin/get_jsapi_ticket?access_token=ACCESS_TOKEN', 'GET'],
@@ -16,6 +17,7 @@ WORKWX_API_TYPE = {
     'USER_GET': ['/cgi-bin/user/get?access_token=ACCESS_TOKEN', 'GET'],
     'DEPARTMENT_LIST': ['/cgi-bin/department/list?access_token=ACCESS_TOKEN', 'GET'],
     'USER_LIST': ['/cgi-bin/user/list?access_token=ACCESS_TOKEN', 'GET'],
+    'USER_CREATE': ['/cgi-bin/user/create?access_token=ADDRESS_TOKEN', 'POST'],
 }
 
 
@@ -47,6 +49,15 @@ class WorkWXAPI:
             if not result:
                 return False
             return info.get('access_token')
+        elif token_key == 'address_token':
+            params = {
+                'corpid': tools.config.get('workwx_corp_id'),
+                'corpsecret': tools.config.get('workwx_address_secret'),
+            }
+            result, info = self._http_cal_with_result('GET_ACCESS_TOKEN', params)
+            if not result:
+                return False
+            return info.get('access_token')
         elif token_key == 'jsapi_ticket':
             result, info = self._http_cal_with_result('GET_JSAPI_TICKET')
             if not result:
@@ -69,6 +80,8 @@ class WorkWXAPI:
     def http_call(self, url_key, params):
         short_url, method = WORKWX_API_TYPE[url_key]
         url = self._make_url(short_url)
+        if params.get('debug') and params.pop('debug'):
+            url += '&debug=1'
         real_url = self._append_token(url)
         for retry_cnt in range(3):
             if 'POST' == method:
@@ -117,6 +130,8 @@ class WorkWXAPI:
     def _append_token(self, url):
         if 'ACCESS_TOKEN' in url:
             return url.replace('ACCESS_TOKEN', self.get_workwx_token('access_token'))
+        if 'ADDRESS_TOKEN' in url:
+            return url.replace('ADDRESS_TOKEN', self.get_workwx_token('address_token'))
         else:
             return url
 
@@ -132,11 +147,15 @@ class WorkWXAPI:
         """获取员工详细信息"""
         return self._http_cal_with_result('USER_GET', param)
 
-    def department_list(self, param):
+    def department_list(self, param={}):
         """获取部门列表"""
         return self._http_cal_with_result('DEPARTMENT_LIST', param)
 
     def user_list(self, param):
         """获取员工列表"""
         return self._http_cal_with_result('USER_LIST', param)
+
+    def user_create(self, param):
+        """创建成员"""
+        return self._http_cal_with_result('USER_CREATE', param)
 

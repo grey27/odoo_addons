@@ -43,3 +43,12 @@ class ResConfigSettings(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_invite_workwx_employee(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'create.workwx.user.wizard',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'new',
+        }
