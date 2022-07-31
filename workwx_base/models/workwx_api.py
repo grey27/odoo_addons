@@ -18,6 +18,7 @@ WORKWX_API_TYPE = {
     'DEPARTMENT_LIST': ['/cgi-bin/department/list?access_token=ACCESS_TOKEN', 'GET'],
     'USER_LIST': ['/cgi-bin/user/list?access_token=ACCESS_TOKEN', 'GET'],
     'USER_CREATE': ['/cgi-bin/user/create?access_token=ADDRESS_TOKEN', 'POST'],
+    'GET_JOIN_QRCODE': ['cgi-bin/corp/get_join_qrcode?access_token=ADDRESS_TOKEN', 'GET'],
 }
 
 
@@ -139,11 +140,11 @@ class WorkWXAPI:
         if 'ACCESS_TOKEN' in url:
             self.refresh_workwx_token('access_token')
 
-    def get_user_info(self, param):
+    def get_user_info(self, param={}):
         """获取员工id"""
         return self._http_cal_with_result('GET_USER_INFO', param)
 
-    def user_get(self, param):
+    def user_get(self, param={}):
         """获取员工详细信息"""
         return self._http_cal_with_result('USER_GET', param)
 
@@ -151,11 +152,14 @@ class WorkWXAPI:
         """获取部门列表"""
         return self._http_cal_with_result('DEPARTMENT_LIST', param)
 
-    def user_list(self, param):
+    def user_list(self, param={}):
         """获取员工列表"""
         return self._http_cal_with_result('USER_LIST', param)
 
-    def user_create(self, param):
+    def user_create(self, param={}):
         """创建成员"""
         return self._http_cal_with_result('USER_CREATE', param)
 
+    def get_join_qrcode(self, param={}):
+        """创建成员"""
+        return self._http_cal_with_result('GET_JOIN_QRCODE', param)

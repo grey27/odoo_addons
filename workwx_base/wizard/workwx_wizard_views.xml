@@ -6,7 +6,7 @@
             <field name="name">create.workwx.user.wizard.view.form</field>
             <field name="model">create.workwx.user.wizard</field>
             <field name="arch" type="xml">
-                <form >
+                <form>
                     <sheet>
                         <group>
                             <group>
@@ -20,6 +20,11 @@
                                 <field name="create_user" widget="boolean_toggle"/>
                             </group>
                             <group>
+                                <div class="o_td_label">
+                                    <span class="o_form_label">邀请二维码(7天内有效)</span>
+                                </div>
+                                <div/>
+                                <field name="join_qrcode" widget="image" readonly="1" nolabel="1"/>
                             </group>
                         </group>
                         <footer>
@@ -34,7 +39,7 @@
             <field name="name">workwx.sync.employee.wizard.view.form</field>
             <field name="model">workwx.sync.employee.wizard</field>
             <field name="arch" type="xml">
-                <form >
+                <form>
                     <sheet>
                         <group>
                             <group>

@@ -1,5 +1,6 @@
+import base64
 import logging
-
+import requests
 from odoo import fields, models, api
 from odoo.addons.workwx_base.models.workwx_api import WorkWXAPI
 from odoo.exceptions import UserError
@@ -20,7 +21,22 @@ class CreateWorkwxUserWizard(models.TransientModel):
         department_map = [(item['id'], item['name']) for item in info.get('department')]
         return department_map
 
-    user_id = fields.Char('员工id', required=1)
+    @api.model
+    def _get_join_qrcode(self):
+        result, info = WorkWXAPI().get_join_qrcode()
+        if not result:
+            raise UserError(f"获取邀请二维码失败:{info}")
+        qr_code = info.get("join_qrcode")
+        try:
+            response = requests.get(qr_code)
+            return base64.b64encode(response.content)
+        except Exception as e:
+            logger.exception(f'下载邀请二维码失败:{e}')
+        return False
+
+    user_id = fields.Char('员工id', required=1,
+                          help='对应管理端的帐号，企业内必须唯一。长度为1~64个字节。只能由数字、字母和“_-@.”四种字符组成，'
+                               '且第一个字符必须是数字或字母。系统进行唯一性检查时会忽略大小写。')
     name = fields.Char('员工姓名', required=1)
     mobile = fields.Char('手机号码')
     email = fields.Char('邮箱')
@@ -28,6 +44,7 @@ class CreateWorkwxUserWizard(models.TransientModel):
     position = fields.Char('职务')
     gender = fields.Selection([('1', '男'), ('2', '女')], '性别')
     create_user = fields.Boolean('同步创建odoo账号', default=True)
+    join_qrcode = fields.Image(default=_get_join_qrcode, string='邀请二维码')
 
     def action_invite(self):
         param = {
@@ -153,8 +170,14 @@ class SyncEmployeeWizard(models.TransientModel):
                 continue
             try:
                 with self.env.cr.savepoint():
-                    user_id = self.env['res.users'].sudo().search(
-                        [('oauth_provider_id', '=', provider.id), ('oauth_uid', '=', user_id)])
+                    user_id = self.env['res.users'].sudo().with_context(active_test=False).search(
+                        [('oauth_provider_id', '=', provider.id), ('oauth_uid', '=', employee_id.workwx_id)])
+                    if user_id and not user_id.active:
+                        create_fail.append({
+                            'name': employee_id.name,
+                            'error': f'odoo中已存在账号为{employee_id.work_email or employee_id.work_phone}的归档用户,'
+                                     f'请将归档用户删除或者更改账号'})
+                        continue
                     if not user_id:
                         user_id = default_user.copy({
                             'active': True,
@@ -169,7 +192,7 @@ class SyncEmployeeWizard(models.TransientModel):
                 if 'res_users_login_key' in str(e):
                     create_fail.append({
                         'name': employee_id.name,
-                        'error': f'odoo中已存在邮箱为{employee_id.work_email}的用户'})
+                        'error': f'odoo中已存在账号为{employee_id.work_email or employee_id.work_phone}的用户'})
                 if 'res_users_uniq_users_oauth_provider_oauth_uid' in str(e):
                     create_fail.append({
                         'name': employee_id.name,
