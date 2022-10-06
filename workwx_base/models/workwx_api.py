@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 token_cache = Cache(ttl=3600)
 
 # 接口详情及更多接口请查看官方文档: https://developer.work.weixin.qq.com/document/path/90664
+# 根据最新文档多个接口都将被屏蔽：https://developer.work.weixin.qq.com/document/path/96079
 WORKWX_API_TYPE = {
     'GET_ACCESS_TOKEN': ['/cgi-bin/gettoken', 'GET'],
     'GET_JSAPI_TICKET': ['/cgi-bin/get_jsapi_ticket?access_token=ACCESS_TOKEN', 'GET'],
@@ -19,6 +20,8 @@ WORKWX_API_TYPE = {
     'USER_LIST': ['/cgi-bin/user/list?access_token=ACCESS_TOKEN', 'GET'],
     'USER_CREATE': ['/cgi-bin/user/create?access_token=ADDRESS_TOKEN', 'POST'],
     'GET_JOIN_QRCODE': ['cgi-bin/corp/get_join_qrcode?access_token=ADDRESS_TOKEN', 'GET'],
+    'MENU_CREATE': ['cgi-bin/menu/create?access_token=ACCESS_TOKEN&agentid=AGENTID', 'POST'],
+    'MENU_DELETE': ['cgi-bin/menu/delete?access_token=ACCESS_TOKEN&agentid=AGENTID', 'GET'],
 }
 
 
@@ -88,7 +91,7 @@ class WorkWXAPI:
             if 'POST' == method:
                 response = requests.post(real_url, data=json.dumps(params))
                 response_str = response.content.decode('unicode-escape').encode("utf-8")
-                response = json.loads(response_str)
+                response = json.loads(response_str, strict=False)
             elif 'GET' == method:
                 real_url += (('&' if '?' in real_url else '?') + werkzeug.urls.url_encode(params))
                 response = requests.get(real_url)
@@ -130,11 +133,12 @@ class WorkWXAPI:
 
     def _append_token(self, url):
         if 'ACCESS_TOKEN' in url:
-            return url.replace('ACCESS_TOKEN', self.get_workwx_token('access_token'))
-        if 'ADDRESS_TOKEN' in url:
-            return url.replace('ADDRESS_TOKEN', self.get_workwx_token('address_token'))
-        else:
-            return url
+            url = url.replace('ACCESS_TOKEN', self.get_workwx_token('access_token'))
+        elif 'ADDRESS_TOKEN' in url:
+            url = url.replace('ADDRESS_TOKEN', self.get_workwx_token('address_token'))
+        if 'AGENTID' in url:
+            url = url.replace('AGENTID', tools.config.get('workwx_agent_id'))
+        return url
 
     def refresh_token_by_url(self, url):
         if 'ACCESS_TOKEN' in url:
@@ -163,3 +167,11 @@ class WorkWXAPI:
     def get_join_qrcode(self, param={}):
         """创建成员"""
         return self._http_cal_with_result('GET_JOIN_QRCODE', param)
+
+    def menu_create(self, param={}):
+        """创建应用菜单栏"""
+        return self._http_cal_with_result('MENU_CREATE', param)
+
+    def menu_delete(self, param={}):
+        """删除应用菜单栏"""
+        return self._http_cal_with_result('MENU_DELETE', param)

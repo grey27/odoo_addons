@@ -54,3 +54,14 @@ class ResConfigSettings(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_workwx_menu_manager(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '应用菜单栏设置',
+            'res_model': 'workwx.menu.item',
+            'view_type': 'list',
+            'view_mode': 'list',
+            'domain': [],
+            'target': 'new',
+        }

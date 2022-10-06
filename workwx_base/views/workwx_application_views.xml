@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="workwx_menu_item_view_tree" model="ir.ui.view">
+            <field name="name">workwx.menu.item.view.tree</field>
+            <field name="model">workwx.menu.item</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" export_xlsx="0">
+                    <header>
+                        <button name="action_refresh_menu" type="object" string="刷新菜单栏"/>
+                    </header>
+                    <field name="sequence" widget="handle"/>
+                    <field name="name" required="1"/>
+                    <field name="type" attrs="{'required':[('sub_button_ids','=',[])]}"/>
+                    <field name="key" attrs="{'required':[('type','in',['click','scancode_waitmsg'])]}"/>
+                    <field name="url" attrs="{'required':[('type','=','view')]}"/>
+                    <field name="sub_button_ids" widget="many2many_tags"
+                           attrs="{'required':[('type','=',False)], 'readonly':[('type','!=',False)]}"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>

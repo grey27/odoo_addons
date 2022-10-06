@@ -2,7 +2,6 @@ import hashlib
 import logging
 import random
 import time
-
 import werkzeug
 
 from odoo.addons.web.controllers.main import login_and_redirect
@@ -19,13 +18,17 @@ class WorkWxOAuthLogin(OAuthLogin):
     def list_providers(self):
         providers = super(WorkWxOAuthLogin, self).list_providers()
         for provider in providers:
-            if '企业微信' in provider.get('name'):
+            if provider.get('id') == request.env.ref('workwx_base.provider_workwx').sudo().id:
                 params = {
                     'appid': tools.config.get('workwx_corp_id'),
                     'agentid': tools.config.get('workwx_agent_id'),
-                    'redirect_uri': request.httprequest.url_root + 'workwx/signin',
+                    'redirect_uri': request.env['ir.config_parameter'].sudo().get_param(
+                        'web.base.url') + '/workwx/signin',
                     'state': '',
                 }
+                if params['redirect_uri'].startswith('http://') and request.env['ir.config_parameter'].sudo().get_param(
+                        'workwx_base.use_https'):
+                    params['redirect_uri'] = params['redirect_uri'].replace('http://', 'https://')
                 provider['auth_link'] = "%s?%s" % (provider['auth_endpoint'], werkzeug.urls.url_encode(params))
         return providers
 
@@ -84,7 +87,7 @@ class WorkWxOAuthLogin(OAuthLogin):
         kw['login_mode'] = 'password'
         url = '/web/login?%s' % werkzeug.urls.url_encode(kw)
         for provider in self.list_providers():
-            if '企业微信' in provider.get('name'):
+            if provider.get('id') == request.env.ref("workwx_base.provider_workwx").sudo().id:
                 url = provider.get('auth_link')
         return werkzeug.utils.redirect(url, 303)
 
@@ -100,7 +103,7 @@ class WorkWxOAuthLogin(OAuthLogin):
         """
         redirect = '/web' if not redirect_uri else f'/web?redirect={redirect_uri}'
         # 这里再次进行编码是为了防止#后参数被企业回调时给忽略
-        url = request.httprequest.url_root + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri)}'
+        url = request.httprequest.url_root + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri or "/web")}'
         login_redirect_url = self.get_login_redirect_url(url)
         if 'wxwork' not in request.httprequest.headers.get('User-Agent'):
             return werkzeug.utils.redirect(redirect, 303)
@@ -147,3 +150,16 @@ class WorkWxOAuthLogin(OAuthLogin):
             'ticket': ticket,
             'request_url': url,
         }
+
+
+class WorkWxController(http.Controller):
+
+    @http.route('/workwx_callback/', type='http', auth='public', csrf=False)
+    def workwx_callback(self, **kwargs):
+        # get方法为企业微信校验回调地址是否正确
+        if request.httprequest.method == 'GET':
+            return request.env['workwx.callback'].check_workwx_callback(**kwargs)
+        # post方法为接收真实回调数据
+        elif request.httprequest.method == 'POST':
+            xml_text = request.env['workwx.callback'].handle_workwx_callback(request.httprequest.get_data(), **kwargs)
+            return http.Response(xml_text)
