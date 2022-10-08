@@ -51,10 +51,10 @@ workwx_agent_id = 1000002
 
 3.邀请企业微信员工
 ![输入图片说明](workwx_base/static/description/8.png)    
-使用该功能需要在企业微信后台-管理工具-通讯录同步进行如下设置
-1.权限设置为API编辑通讯录
-2.查看Secret并写odoo启动文件中 workwx_address_secret = tkGs5OrJqxxxxxLmwI6bo2DtBHxooQhinraoQD9WT8(写入你自己的Secret)
-3.配置企业可信IP
+使用该功能需要在企业微信后台-管理工具-通讯录同步进行如下设置  
+1.权限设置为API编辑通讯录  
+2.查看Secret并写odoo启动文件中 workwx_address_secret = tkGs5OrJqxxxxxLmwI6bo2DtBHxooQhinraoQD9WT8(写入你自己的Secret)  
+3.配置企业可信IP  
 ![输入图片说明](workwx_base/static/description/9.png)  
 
 
