@@ -65,3 +65,14 @@ class ResConfigSettings(models.TransientModel):
             'domain': [],
             'target': 'new',
         }
+
+    def action_workwx_message(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '企业微信消息推送',
+            'res_model': 'workwx.message',
+            'view_type': 'list',
+            'view_mode': 'list',
+            'domain': [],
+            'target': 'self',
+        }

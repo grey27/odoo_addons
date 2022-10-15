@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="workwx_message_view_tree" model="ir.ui.view">
+            <field name="name">workwx.message.view.tree</field>
+            <field name="model">workwx.message</field>
+            <field name="arch" type="xml">
+                <tree editable="top" export_xlsx="0">
+                    <field name="state" readonly="1"/>
+                    <field name="receiver_ids" widget="many2many_tags" required="1" attrs="{'readonly':[('state','=','done')]}"/>
+                    <field name="message_type" required="1" attrs="{'readonly':[('state','=','done')]}"/>
+                    <field name="content" required="1" attrs="{'readonly':[('state','=','done')]}"/>
+                    <field name="send_time" readonly="1"/>
+                    <field name="request_body" groups="base.group_no_one"/>
+                    <field name="msgid"  groups="base.group_no_one"/>
+                    <button name="message_send" type="object" class="oe_highlight" string="发送"
+                            attrs="{'invisible':[('state','=','done')]}"/>
+                    <button name="message_withdraw" type="object" class="oe_highlight" string="撤回消息"
+                            attrs="{'invisible':[('state','!=','done')]}"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,5 +1,6 @@
 import json
 import logging
+
 import werkzeug
 import requests
 from cacheout import Cache
@@ -22,6 +23,8 @@ WORKWX_API_TYPE = {
     'GET_JOIN_QRCODE': ['cgi-bin/corp/get_join_qrcode?access_token=ADDRESS_TOKEN', 'GET'],
     'MENU_CREATE': ['cgi-bin/menu/create?access_token=ACCESS_TOKEN&agentid=AGENTID', 'POST'],
     'MENU_DELETE': ['cgi-bin/menu/delete?access_token=ACCESS_TOKEN&agentid=AGENTID', 'GET'],
+    'MESSAGE_SEND': ['cgi-bin/message/send?access_token=ACCESS_TOKEN', 'POST'],
+    'MESSAGE_RECALL': ['cgi-bin/message/recall?access_token=ACCESS_TOKEN', 'POST'],
 }
 
 
@@ -119,7 +122,7 @@ class WorkWXAPI:
         err_code = response.get('errcode')
         err_msg = response.get('errmsg')
 
-        if err_code is 0:
+        if err_code == 0:
             return response
         else:
             raise Exception(err_code, err_msg)
@@ -175,3 +178,11 @@ class WorkWXAPI:
     def menu_delete(self, param={}):
         """删除应用菜单栏"""
         return self._http_cal_with_result('MENU_DELETE', param)
+
+    def message_post(self, param={}):
+        """发送消息通知"""
+        return self._http_cal_with_result('MESSAGE_SEND', param)
+
+    def message_recall(self, param={}):
+        """撤回消息通知"""
+        return self._http_cal_with_result('MESSAGE_RECALL', param)

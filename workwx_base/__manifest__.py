@@ -14,6 +14,7 @@
         'views/workwx_views.xml',
         'views/workwx_hr_views.xml',
         'views/workwx_application_views.xml',
+        'views/workwx_message_views.xml',
         'views/workwx_setting_views.xml',
         'wizard/workwx_wizard_views.xml',
     ],
