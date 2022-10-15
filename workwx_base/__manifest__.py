@@ -11,13 +11,17 @@
     'data': [
         'security/ir.model.access.csv',
         'data/data.xml',
-        'views/assets.xml',
         'views/workwx_views.xml',
         'views/workwx_hr_views.xml',
         'views/workwx_application_views.xml',
         'views/workwx_setting_views.xml',
         'wizard/workwx_wizard_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'workwx_base/static/src/js/*'
+        ],
+    },
     'external_dependencies': {
         'python': [
             'cacheout',

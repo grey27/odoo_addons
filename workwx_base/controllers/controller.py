@@ -4,14 +4,22 @@ import random
 import time
 import werkzeug
 
-from odoo.addons.web.controllers.main import login_and_redirect
 from odoo.addons.auth_oauth.controllers.main import OAuthLogin
 from odoo.addons.workwx_base.models.workwx_api import WorkWXAPI
+from odoo.addons.web.controllers.utils import _get_login_redirect_url
 from odoo import http, tools
 from odoo.exceptions import AccessDenied
 from odoo.http import request
 
 logger = logging.getLogger(__name__)
+
+
+def login_and_redirect(db, login, key, redirect_url='/web'):
+    uid = request.session.authenticate(db, login, key)
+    redirect_url = _get_login_redirect_url(uid, redirect_url)
+    redirect = werkzeug.utils.redirect(redirect_url, 303)
+    redirect.autocorrect_location_header = False
+    return redirect
 
 
 class WorkWxOAuthLogin(OAuthLogin):
