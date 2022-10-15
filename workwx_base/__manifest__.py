@@ -1,6 +1,6 @@
 {
     'name': '企业微信模块-基础',
-    'version': '14.0.01',
+    'version': '16.0.0.1',
     'summary': '对接企业微信接口',
     'description': '',
     'category': 'WorkWX',
