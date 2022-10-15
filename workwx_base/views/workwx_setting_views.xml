@@ -76,6 +76,17 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h2>消息推送</h2>
+                        <div class="row mt16 o_settings_container" name="workwx_setting_container">
+                             <div class="col-12 col-lg-6 o_setting_box" groups="base.group_system">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <button type="object" name="action_workwx_message" string="消息推送管理"
+                                            icon="fa-bars" class="oe_highlight"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </xpath>
             </field>

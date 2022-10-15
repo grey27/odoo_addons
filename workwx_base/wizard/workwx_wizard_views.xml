@@ -43,7 +43,7 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="department_ids" widget="many2many_tags" requires="1"/>
+                                <field name="department_ids" widget="many2many_tags" required="1"/>
                                 <field name="create_user" widget="boolean_toggle"/>
                             </group>
                             <group>
