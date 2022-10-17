@@ -24,17 +24,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6 o_setting_box" id="workwx_https_setting">
-                                <div class="o_setting_left_pane">
-                                    <field name="workwx_base_use_https"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="workwx_base_use_https"/>
-                                    <div class="text-muted">
-                                        当系统使用nginx部署了https时请勾选
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <h2>通讯录管理</h2>
