@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-inherit="mail.AttachmentBox" t-inherit-mode="extension" owl="1">
+        <xpath expr="//span[hasclass('o_AttachmentBox_titleText')]" position="replace">
+            <t t-if="thread and thread.allAttachments.length > 1">
+                <div class="o_Attachment_action o_Attachment_actionDownload_all"
+                     t-on-click="_onClickDownloadAll" title="Download All">
+                    Attachments
+                    <i class="fa fa-download"/>
+                </div>
+            </t>
+            <t t-else="">
+                Attachments
+            </t>
+        </xpath>
+    </t>
+
+
+</templates>
