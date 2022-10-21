@@ -159,6 +159,11 @@ class WorkWxOAuthLogin(OAuthLogin):
 
 class WorkWxController(http.Controller):
 
+    @http.route('/WW_verify_<string:code>.txt', type='http', auth='public')
+    def ownership_verify(self, code):
+        """企微域名授权验证接口"""
+        return code
+
     @http.route('/workwx_callback/', type='http', auth='public', csrf=False)
     def workwx_callback(self, **kwargs):
         # get方法为企业微信校验回调地址是否正确
