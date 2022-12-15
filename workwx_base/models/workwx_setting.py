@@ -73,3 +73,14 @@ class ResConfigSettings(models.TransientModel):
             'domain': [],
             'target': 'self',
         }
+
+    def action_workwx_callback_log(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '企业微信回调日志',
+            'res_model': 'workwx.callback.log',
+            'view_type': 'list',
+            'view_mode': 'list',
+            'domain': [],
+            'target': 'self',
+        }

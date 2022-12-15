@@ -168,8 +168,9 @@ class WorkWxController(http.Controller):
     def workwx_callback(self, **kwargs):
         # get方法为企业微信校验回调地址是否正确
         if request.httprequest.method == 'GET':
-            return request.env['workwx.callback'].check_workwx_callback(**kwargs)
+            return request.env['workwx.callback'].sudo().check_workwx_callback(**kwargs)
         # post方法为接收真实回调数据
         elif request.httprequest.method == 'POST':
-            xml_text = request.env['workwx.callback'].handle_workwx_callback(request.httprequest.get_data(), **kwargs)
+            xml_text = request.env['workwx.callback'].sudo().handle_workwx_callback(request.httprequest.get_data(),
+                                                                                    **kwargs)
             return http.Response(xml_text)

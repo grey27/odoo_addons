@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="workwx_callback_log_view_tree" model="ir.ui.view">
+            <field name="name">workwx.callback.log.view.tree</field>
+            <field name="model">workwx.callback.log</field>
+            <field name="arch" type="xml">
+                <tree create="0" edit="0" delete="0" export_xlsx="0">
+                    <field name="callback_xml"/>
+                    <field name="response_xml"/>
+                    <field name="employee_id"/>
+                    <field name="create_date"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>

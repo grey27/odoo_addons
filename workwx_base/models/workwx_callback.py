@@ -7,7 +7,7 @@ import struct
 import time
 import xmltodict
 from Crypto.Cipher import AES
-from odoo import models, tools, api
+from odoo import models, tools, api, fields
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +49,27 @@ class WorkwxCallback(models.AbstractModel):
         kwargs.update({'echostr': xml_dict.get('Encrypt')})
         msg = self.check_workwx_callback(**kwargs)
         xml_dict = xmltodict.parse(msg).get('xml')
+        employee_id = self.env['hr.employee'].search([('workwx_id', '=', xml_dict.get("FromUserName"))])
+        if not employee_id:
+            logger.exception(f'回调执行失败，系统中未找到企业微信id={xml_dict.get("FromUserName")}的员工')
+            return self.encrypt_workwx_message('failed')
+        # 企微按钮没有loading,可以连续点击，防止多次点击导致方法重复、并发执行，使用行锁保证每个用户同时只能进行一个回调动作
+        try:
+            self._cr.execute(
+                "SELECT employee_id FROM workwx_callback_log WHERE employee_id=%s FOR UPDATE NOWAIT" % employee_id.id)
+        except Exception as e:
+            if e.pgcode == '55P03':
+                pass    # 发送处理中消息
+            return self.encrypt_workwx_message('failed')
+        log_id = self.env['workwx.callback.log'].create({'callback_xml': xml_dict, 'employee_id': employee_id.id})
+        # 替换为实际用户执行后续方法
+        self = self.with_user(employee_id.user_id).with_context(log_id=log_id.id)
         callback_func = self.get_event_callback_func(xml_dict)
         if not callback_func:
             logger.exception(f'未找到对应的处理方法:{xml_dict}')
             return self.encrypt_workwx_message('failed')
         try:
+            logger.info(f'{employee_id.name}回调执行了{callback_func.__name__}')
             callback_func(xml_dict)
         except Exception as e:
             logger.exception(f'回调方法{callback_func.__name__}执行失败，{e}')
@@ -97,14 +113,19 @@ class WorkwxCallback(models.AbstractModel):
             logger.warning(f'加密消息-生成安全签名失败:{e}')
             return False
         # 组装xml消息
-        return f"""<xml>
+        xml = f"""<xml>
         <Encrypt><![CDATA[{msg_encrypt}]]></Encrypt>
         <MsgSignature><![CDATA[{msg_signaturet}]]></MsgSignature>
         <TimeStamp>{timestamp}</TimeStamp>
         <Nonce><![CDATA[{Nonce}]]></Nonce>
         </xml>"""
+        log_id = self.env['workwx.callback.log'].browse(self.env.context.get('log_id', 0))
+        if log_id:
+            log_id.response_xml = xml
+        return xml
 
-    def pkcs7_encoder(self, text, block_size=32):
+    @staticmethod
+    def pkcs7_encoder(text, block_size=32):
         """pkcs7填充算法"""
         text_length = len(text)
         amount_to_pad = block_size - (text_length % block_size)
@@ -112,3 +133,14 @@ class WorkwxCallback(models.AbstractModel):
             amount_to_pad = block_size
         pad = chr(amount_to_pad)
         return text + (pad * amount_to_pad).encode()
+
+
+class WorkwxCallbackLog(models.Model):
+    _name = 'workwx.callback.log'
+    _description = '企业微信回调日志'
+    _order = 'id desc'
+
+    callback_xml = fields.Char('回调xml')
+    response_xml = fields.Char('响应xml')
+    employee_id = fields.Many2one('hr.employee', '回调用户')
+    create_date = fields.Datetime('回调时间')

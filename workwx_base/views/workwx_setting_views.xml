@@ -75,6 +75,14 @@
                                             icon="fa-bars" class="oe_highlight"/>
                                 </div>
                             </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box" groups="base.group_system">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <button type="object" name="action_workwx_callback_log" string="企微回调日志"
+                                            icon="fa-bars" class="oe_highlight"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </xpath>

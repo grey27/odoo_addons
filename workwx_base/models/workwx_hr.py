@@ -58,7 +58,7 @@ class WorkwxHrDepartment(models.Model):
 class WorkwxHrEmployeeBase(models.AbstractModel):
     _inherit = 'hr.employee.base'
 
-    workwx_id = fields.Char('企业微信部门id')
+    workwx_id = fields.Char('企业微信用户id')
 
     def update_workwx_info(self, info):
         vals = {

@@ -76,7 +76,7 @@ class WorkwxMenuItem(models.Model):
 
     @api.model
     def callback_click(self, xml_dict):
-        logger.info(f'{xml_dict.get("FromUserName")}点击了按钮{xml_dict.get("EventKey")}')
+        logger.info(f'{self.env.user.name}点击了按钮{xml_dict.get("EventKey")}')
 
     @api.model
     def callback_scancode(self, xml_dict):
@@ -89,7 +89,7 @@ class WorkwxCallback(models.AbstractModel):
     @api.model
     def get_event_callback_func(self, xml_dict):
         if xml_dict.get('MsgType') == 'event' and xml_dict.get('Event') == 'click':
-            return self.env['workwx.menu.item'].sudo().callback_click
+            return self.env['workwx.menu.item'].callback_click
         if xml_dict.get('MsgType') == 'event' and xml_dict.get('Event') == 'scancode_waitmsg':
-            return self.env['workwx.menu.item'].sudo().callback_scancode
+            return self.env['workwx.menu.item'].callback_scancode
         return super(WorkwxCallback, self).get_event_callback_func(xml_dict)
