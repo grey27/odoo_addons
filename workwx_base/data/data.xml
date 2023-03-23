@@ -3,7 +3,7 @@
     <data noupdate="1">
         <record id="provider_workwx" model="auth.oauth.provider">
             <field name="name">企业微信</field>
-            <field name="auth_endpoint">https://open.work.weixin.qq.com/wwopen/sso/qrConnect</field>
+            <field name="auth_endpoint">https://login.work.weixin.qq.com/wwlogin/sso/login</field>
             <field name="validation_endpoint">https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo</field>
             <field name="body">使用企业微信扫码登录</field>
             <field name="enabled" eval="True"/>
