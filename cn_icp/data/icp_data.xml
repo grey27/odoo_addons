@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="cn_icp_display_name" model="ir.config_parameter">
+            <field name="key">cn_icp.display_name</field>
+            <field name="value">粤ICP备XXXXXXX号</field>
+        </record>
+
+    </data>
+</odoo>
