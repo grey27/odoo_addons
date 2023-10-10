@@ -108,7 +108,7 @@ class WorkWxOAuthLogin(OAuthLogin):
         """
         redirect = '/web' if not redirect_uri else f'/web?redirect={redirect_uri}'
         # 这里再次进行编码是为了防止#后参数被企业回调时给忽略
-        url = request.httprequest.url_root + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri or "/web")}'
+        url = request.httprequest.url_root.rstrip('/') + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri or "/web")}'
         login_redirect_url = self.get_login_redirect_url(url)
         if 'wxwork' not in request.httprequest.headers.get('User-Agent'):
             return werkzeug.utils.redirect(redirect, 303)
