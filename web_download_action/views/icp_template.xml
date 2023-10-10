@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cn_icp.login_layout" inherit_id="web.login_layout">
+        <xpath expr="//div[hasclass('container')]" position="after">
+            <p style="padding-top: 6px;height: 16px;line-height: 16px;text-align: center;">
+                <a href="https://beian.miit.gov.cn/" target="_blank">
+                    <t t-raw="icp_display_name"/>
+                </a>
+            </p>
+        </xpath>
+    </template>
+</odoo>
