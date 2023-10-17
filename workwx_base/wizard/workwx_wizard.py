@@ -166,9 +166,6 @@ class SyncEmployeeWizard(models.TransientModel):
         create_fail = []
         count = 0
         for employee_id in create_user_ids:
-            if not employee_id.work_email and not employee_id.work_phone:
-                create_fail.append({'name': employee_id.name, 'error': '创建odoo用户员工信息邮箱/手机号二选一必填'})
-                continue
             try:
                 with self.env.cr.savepoint():
                     user_id = self.env['res.users'].sudo().with_context(active_test=False).search(
@@ -183,7 +180,7 @@ class SyncEmployeeWizard(models.TransientModel):
                         user_id = default_user.copy({
                             'active': True,
                             'name': employee_id.name,
-                            'login': employee_id.work_email or employee_id.work_phone,
+                            'login': employee_id.workwx_id,
                             'image_1920': employee_id.image_1920,
                             'oauth_provider_id': provider.id,
                             'oauth_uid': employee_id.workwx_id,
