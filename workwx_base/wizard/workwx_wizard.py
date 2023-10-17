@@ -111,6 +111,7 @@ class SyncEmployeeWizard(models.TransientModel):
             if not result:
                 raise UserError(f"同步企业微信部门失败:{info}")
             for employee_info in info.get('userlist'):
+                logger.info(f'获取企微员工信息:{employee_info}')
                 employee_id = self.env['hr.employee'].search([('workwx_id', '=', employee_info.get('userid'))])
                 if not employee_id:
                     add_count += 1
@@ -130,7 +131,7 @@ class SyncEmployeeWizard(models.TransientModel):
             count, create_fail = self.create_sys_user(create_user_ids)
             msg += f',新建odoo用户{count}个'
             for fail in create_fail:
-                msg += f'\n{fail["name"]}创建odoo用户失败:{fail["error"]}'
+                msg += f'\n创建odoo用户{fail["name"]}失败:{fail["error"]}'
         logger.info(msg)
         msg = msg.replace('\n', '<br/>')
         return {
