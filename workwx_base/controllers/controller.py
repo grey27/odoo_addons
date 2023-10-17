@@ -57,6 +57,8 @@ class WorkWxOAuthLogin(OAuthLogin):
         request.env.cr.commit()
         url = request.httprequest.url_root + (
             'web' if not kw.get('redirect_uri') else kw.get('redirect_uri').lstrip('/'))
+        if tools.config.get('force_https'):
+            url = url.replace('http://', 'https://')
         try:
             resp = login_and_redirect(request.env.cr.dbname, oauth_user.login, code, redirect_url=url)
             logger.info(f'{oauth_user.login}通过企业微信扫码登录成功')
@@ -109,6 +111,8 @@ class WorkWxOAuthLogin(OAuthLogin):
         redirect = '/web' if not redirect_uri else f'/web?redirect={redirect_uri}'
         # 这里再次进行编码是为了防止#后参数被企业回调时给忽略
         url = request.httprequest.url_root.rstrip('/') + f'/workwx/signin?redirect_uri={werkzeug.urls.url_quote_plus(redirect_uri or "/web")}'
+        if tools.config.get('force_https'):
+            url = url.replace('http://', 'https://')
         login_redirect_url = self.get_login_redirect_url(url)
         if 'wxwork' not in request.httprequest.headers.get('User-Agent'):
             return werkzeug.utils.redirect(redirect, 303)
