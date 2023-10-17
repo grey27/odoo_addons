@@ -34,6 +34,8 @@ class WorkWxOAuthLogin(OAuthLogin):
                         'web.base.url') + '/workwx/signin',
                     'state': '',
                 }
+                if tools.config.get('force_https'):
+                    params['redirect_uri'] = params['redirect_uri'].replace('http://', 'https://')
                 provider['auth_link'] = "%s?%s" % (provider['auth_endpoint'], werkzeug.urls.url_encode(params))
         return providers
 
