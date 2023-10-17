@@ -65,10 +65,7 @@ class WorkwxHrEmployeeBase(models.AbstractModel):
             'workwx_id': info.get('userid'),
             'name': info.get('name'),
             'work_phone': info.get('mobile'),
-            'department_id': self.env['hr.department'].search([('workwx_id', '=',
-                                                                info.get('department')[0]
-                                                                if isinstance(info.get('department'), list) else
-                                                                info.get('department'))]).id,
+            'department_id': self.env['hr.department'].search([('workwx_id', '=', info.get('main_department'))]).id,
             'job_title': info.get('position'),
             'gender': {'0': 'other', '1': 'male', '2': 'female'}.get(info.get('gender')),
             'work_email': info.get('email'),
