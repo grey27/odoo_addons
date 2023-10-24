@@ -4,6 +4,7 @@
         <xpath expr="//div[hasclass('container')]" position="after">
             <p style="padding-top: 6px;height: 16px;line-height: 16px;text-align: center;">
                 <a href="https://beian.miit.gov.cn/" target="_blank">
+                    <i style="display: inline-block;width: 14px;height: 16px;margin-right: 6px;background: url(https://bkssl.bdimg.com/static/wiki-common/widget/component/footer/img/icon-police_5f07082.png) 0 0 no-repeat;vertical-align: middle;margin-top: -4px;"/>
                     <t t-raw="icp_display_name"/>
                 </a>
             </p>
