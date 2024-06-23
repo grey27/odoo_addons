@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+    <t t-extend="FieldBinaryImage">
+        <t t-jquery=".o_form_image_controls" t-operation="after">
+            <div class="o_input_paste_area" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; color: gray;">
+                Paste pictures here to upload
+            </div>
+        </t>
+    </t>
+</template>
