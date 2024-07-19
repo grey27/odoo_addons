@@ -7,8 +7,6 @@
     Image field adds an input box for pasting and uploading images
     ''',
     'author': 'grey27',
-    'price': 4.99,
-    'currency': 'USD',
     'depends': ['web'],
     'data': [
         'views/assets.xml',
