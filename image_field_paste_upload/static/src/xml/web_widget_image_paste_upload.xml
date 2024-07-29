@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+    <t t-name="web_widget_image_paste_upload.ImageField" t-inherit="web.ImageField" t-inherit-mode="extension" owl="1">
+
+        <xpath expr="//button[hasclass('o_clear_file_button')]" position="before">
+            <div class="o_input_paste_area btn btn-light border-0 rounded-circle m-1 p-1" contenteditable="true"
+                 aria-label="Paste image from clipboard"
+                 data-tooltip="Paste image from clipboard"
+                 style="display: flex;align-items: center;justify-content: center;cursor: pointer;"
+                 t-on-paste="onFilePaste" t-on-input="cleanPaste">
+                <i class="fa fa-paste fa-fw"></i>
+            </div>
+        </xpath>
+
+    </t>
+</template>
