@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+    <t t-name="custom_filter_fields.CustomFilterItem" t-inherit="web.CustomFilterItem" t-inherit-mode="extension" owl="1">
+
+        <xpath expr="//span[hasclass('o_or_filter')]" position="after">
+            <input type="text" class="o_input" placeholder="Filter Fields" t-on-input="_onSearchInput"/>
+        </xpath>
+
+    </t>
+</template>
